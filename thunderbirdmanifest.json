@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "Bug Opener",
+  "version": "1.0",
+  "author": "Teal Dulcet",
+
+  "description": "Open GitHub, GitLab, Bitbucket, Bugzilla and Jira bug/issue numbers.",
+  "homepage_url": "https://github.com/tdulcet/Bug-Opener",
+
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "icons": {
+    "32": "icons/icon_32.png",
+    "64": "icons/icon_64.png",
+    "128": "icons/icon_128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "<all_urls>",
+    "compose",
+    "messagesRead",
+    "menus",
+    "notifications"
+  ],
+
+  "applications": {
+    "gecko": {
+      "id": "bugs@tealdulcet.com",
+      "strict_min_version": "78.0"
+    }
+  }
+}
