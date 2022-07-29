@@ -14,7 +14,7 @@ Firefox, Chromium and Thunderbird add-on/WebExtension to open GitHub, GitLab, Bi
 	* Bugzilla Bugs (optional case insensitive `bug ` prefix and three or more digits)
 	* Jira Issues (requires case insensitive prefix)
 * Supports opening multiple bugs in single page
-* Type bug/issue numbers directly in the address bar/omnibox (use the `bug` keyword)
+* Type bug/issue numbers directly in the address bar/omnibox (Firefox and Chrome only, use the `bug` keyword)
 * Supports creating a nested context menu
 * Shows a live preview of the bug(s) that would open
 * Allows user to specify the installations/repositories for each issue tracker in the options
@@ -27,12 +27,12 @@ Firefox, Chromium and Thunderbird add-on/WebExtension to open GitHub, GitLab, Bi
 
 ❤️ Please visit [tealdulcet.com](https://www.tealdulcet.com/) to support this extension and my other software development.
 
-🔜 This will soon be published to Addons.mozilla.org (AMO), Addons.thunderbird.net (ATN) and possibly the Chrome Web Store.
+⬇️ Download from [Addons.mozilla.org](https://addons.mozilla.org/firefox/addon/bug-opener/) (AMO) and [Addons.thunderbird.net](https://addons.thunderbird.net/thunderbird/addon/bug-opener/) (ATN).
 
 Use on Thunderbird requires renaming the [thunderbirdmanifest.json](thunderbirdmanifest.json) file to `manifest.json`.
 Use on Chromium/Chrome requires the downloading the [webextension-polyfill](https://github.com/mozilla/webextension-polyfill) and renaming the [chromemanifest.json](chromemanifest.json) file to `manifest.json`.
 
-## Other Colab Extensions
+## Other Extensions
 
 * [Open these bug IDs in BMO or GitHub](https://github.com/ddurst/bugme) (Firefox)
 

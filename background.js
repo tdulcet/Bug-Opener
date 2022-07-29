@@ -452,7 +452,7 @@ async function buildMenu(exampleText, tab) {
 		[TYPE.BMO]: settings[TYPE.BMO],
 		[TYPE.JIRA]: settings[TYPE.JIRA]
 	};
-	if (tab && (settings.GH || settings.GL || settings.BB)) {
+	if (tab?.url && (settings.GH || settings.GL || settings.BB)) {
 		const aurl = new URL(tab.url);
 		const path = aurl.pathname.split("/");
 		if (path.length >= 3 && path[1] && path[2]) {
