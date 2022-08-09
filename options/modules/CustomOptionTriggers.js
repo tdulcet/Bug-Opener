@@ -14,7 +14,7 @@ const BACKGROUND = "background";
  *
  * This is basically the "init" method.
  *
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 export async function registerTrigger() {
 	const aevent = new Event("change", { bubbles: true });
@@ -113,8 +113,8 @@ export async function registerTrigger() {
 
 		// trigger update for current session
 		browser.runtime.sendMessage({
-			"type": BACKGROUND,
-			"optionValue": settings
+			type: BACKGROUND,
+			optionValue: settings
 		});
 
 		return AutomaticSettings.Trigger.overrideContinue(settings);

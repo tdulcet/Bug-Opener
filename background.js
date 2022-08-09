@@ -18,19 +18,25 @@ const TYPE = Object.freeze({
 const menuStructure = Object.freeze([TYPE.BMO, TYPE.GH, TYPE.GL, TYPE.BB, TYPE.JIRA]);
 
 // GitHub and Bitbucket
-const re = /#(\d+)/g;
-// Bug/issue number regular expressions
+const re = /#(\d+)/gu;
+
+/**
+ * Bug/issue number regular expressions.
+ *
+ * @const
+ * @type {Object.<string, RegExp>}
+ */
 const reBug = Object.freeze({
 	// GitHub Issues, Pull Requests and Discussions
 	[TYPE.GH]: re,
 	// GitLab Issues and Merge Requests
-	[TYPE.GL]: /([#!])(\d+)/g,
+	[TYPE.GL]: /([#!])(\d+)/gu,
 	// Bitbucket Issues and Pull Requests
 	[TYPE.BB]: re,
 	// Bugzilla Bugs
-	[TYPE.BMO]: /(?:Bug )?(\d{3,})/ig,
+	[TYPE.BMO]: /(?:Bug )?(\d{3,})/igu,
 	// Jira Issues
-	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/ig
+	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/igu
 });
 
 // Thunderbird
@@ -83,10 +89,10 @@ function notification(title, message) {
 	if (settings.send) {
 		console.log(title, message);
 		browser.notifications.create({
-			"type": "basic",
-			"iconUrl": browser.runtime.getURL("icons/icon_128.png"),
-			"title": title,
-			"message": message
+			type: "basic",
+			iconUrl: browser.runtime.getURL("icons/icon_128.png"),
+			title,
+			message
 		});
 	}
 }
@@ -105,7 +111,7 @@ function encodeXML(text) {
 		'"': "&quot;",
 		"'": "&apos;"
 	};
-	return text.replace(/[&<>"']/g, (m) => map[m]);
+	return text.replace(/[&<>"']/gu, (m) => map[m]);
 }
 
 /**
@@ -218,6 +224,12 @@ function getJiraURLs(text, url, omnibox) {
 	return [];
 }
 
+/**
+ * Get URLs.
+ *
+ * @const
+ * @type {Object.<string, function(string, string, boolean): string[]>}
+ */
 const getURLs = Object.freeze({
 	// GitHub
 	[TYPE.GH]: getGHURLs,
@@ -238,7 +250,9 @@ const getURLs = Object.freeze({
  * @returns {Promise}
  */
 function delay(delay) {
-	return new Promise((resolve) => setTimeout(resolve, delay));
+	return new Promise((resolve) => {
+		setTimeout(resolve, delay);
+	});
 }
 
 /**
@@ -249,7 +263,7 @@ function delay(delay) {
  *
  * @param {Object} info
  * @param {Object} tab
- * @returns {void}
+ * @returns {Promise<void>}
  * @throws {Error}
  */
 async function handleMenuShown(info, tab) {
@@ -275,7 +289,7 @@ async function handleMenuShown(info, tab) {
  *
  * @param {Object} info
  * @param {Object} tab
- * @returns {void}
+ * @returns {Promise<void>}
  * @throws {Error}
  */
 async function handleMenuChoosen(info, tab) {
@@ -331,19 +345,17 @@ async function handleMenuChoosen(info, tab) {
 
 			if (urls.length > 1) {
 				for (const url of urls) {
-					await browser.tabs.create({ "url": url, active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
+					await browser.tabs.create({ url, active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
 					// aindex += 1;
 					aactive = false;
 					if (settings.delay) {
 						await delay(settings.delay * 1000);
 					}
 				}
+			} else if (settings.newTab) {
+				browser.tabs.create({ url: urls[0], active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
 			} else {
-				if (settings.newTab) {
-					browser.tabs.create({ url: urls[0], active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
-				} else {
-					browser.tabs.update(tab.id, { url: urls[0] });
-				}
+				browser.tabs.update(tab.id, { url: urls[0] });
 			}
 		}
 	}
@@ -356,7 +368,7 @@ async function handleMenuChoosen(info, tab) {
  * @param {Object[]} menuItems
  * @param {string} exampleText
  * @param {string[]} bugnums
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function createSubmenus(transformationId, menuItems, exampleText, bugnums) {
 	// console.log(transformationId, menuItems, exampleText, bugnums);
@@ -367,7 +379,7 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
 		if (menuIsShown) {
 			menus.update(aid, {
 				title: menuText,
-				visible: !!bugnums
+				visible: Boolean(bugnums)
 			});
 		} else {
 			await menus.create({
@@ -384,15 +396,15 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
 				if (IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
-						visible: !!menuItem.url
+						visible: Boolean(menuItem.url)
 					});
 				} else {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						icons: {
-							"16": menuItem.icon || `${url.origin}/favicon.ico`
+							16: menuItem.icon || `${url.origin}/favicon.ico`
 						},
-						visible: !!menuItem.url
+						visible: Boolean(menuItem.url)
 					});
 				}
 			} else {
@@ -408,20 +420,20 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
 		const amenuItems = menuItems.filter((x) => x.url);
 		for (const menuItem of menuItems) {
 			const url = menuItem.url && new URL(menuItem.url);
-			const menuText = `in ${menuItem.name}${url ? "" : ` ${transformationId}`}${url ? (amenuItems.length > 1 ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : text) : ""}`;
+			const menuText = `in ${menuItem.name}${url ? "" : ` ${transformationId}`}${url ? amenuItems.length > 1 ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : text : ""}`;
 			if (menuIsShown) {
 				if (IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
-						visible: !!bugnums && !!menuItem.url
+						visible: Boolean(bugnums) && Boolean(menuItem.url)
 					});
 				} else {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						icons: {
-							"16": menuItem.icon || `${url.origin}/favicon.ico`
+							16: menuItem.icon || `${url.origin}/favicon.ico`
 						},
-						visible: !!bugnums && !!menuItem.url
+						visible: Boolean(bugnums) && Boolean(menuItem.url)
 					});
 				}
 			} else {
@@ -441,14 +453,14 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
  *
  * @param {string?} [exampleText=null]
  * @param {Object?} [tab]
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function buildMenu(exampleText, tab) {
 	console.log(exampleText);
 	let arepos = {
-		[TYPE.GH]: settings.GH ? [{ name: "Current", "url": null }, ...settings[TYPE.GH]] : settings[TYPE.GH],
-		[TYPE.GL]: settings.GL ? [{ name: "Current", "url": null }, ...settings[TYPE.GL]] : settings[TYPE.GL],
-		[TYPE.BB]: settings.BB ? [{ name: "Current", "url": null }, ...settings[TYPE.BB]] : settings[TYPE.BB],
+		[TYPE.GH]: settings.GH ? [{ name: "Current", url: null }, ...settings[TYPE.GH]] : settings[TYPE.GH],
+		[TYPE.GL]: settings.GL ? [{ name: "Current", url: null }, ...settings[TYPE.GL]] : settings[TYPE.GL],
+		[TYPE.BB]: settings.BB ? [{ name: "Current", url: null }, ...settings[TYPE.BB]] : settings[TYPE.BB],
 		[TYPE.BMO]: settings[TYPE.BMO],
 		[TYPE.JIRA]: settings[TYPE.JIRA]
 	};
@@ -551,7 +563,7 @@ if (!IS_THUNDERBIRD) {
 
 	browser.omnibox.onInputEntered.addListener((url, disposition) => {
 		console.log(url, disposition);
-		if (/^(?:https?|ftp):/i.test(url)) {
+		if (/^(?:https?|ftp):/iu.test(url)) {
 			switch (disposition) {
 				case "currentTab":
 					browser.tabs.update({ url });
@@ -560,7 +572,7 @@ if (!IS_THUNDERBIRD) {
 					browser.tabs.create({ url });
 					break;
 				case "newBackgroundTab":
-					browser.tabs.create({ "url": url, active: false });
+					browser.tabs.create({ url, active: false });
 					break;
 			}
 		}
@@ -624,7 +636,7 @@ function setSettings(asettings) {
  * Init.
  *
  * @public
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function init() {
 	const platformInfo = await browser.runtime.getPlatformInfo();

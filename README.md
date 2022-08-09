@@ -11,7 +11,7 @@ Firefox, Chromium and Thunderbird add-on/WebExtension to open GitHub, GitLab, Bi
 	* GitHub Issues, Pull Requests and Discussions (requires `#` prefix)
 	* GitLab Issues and Merge Requests (requires `#` or `!` prefix respectively)
 	* Bitbucket Issues and Pull Requests (requires `#` prefix)
-	* Bugzilla Bugs (optional case insensitive `bug ` prefix and three or more digits)
+	* Bugzilla Bugs (optional case insensitive `bug` prefix and three or more digits)
 	* Jira Issues (requires case insensitive prefix)
 * Supports opening multiple bugs in single page
 * Type bug/issue numbers directly in the address bar/omnibox (Firefox and Chrome only, use the `bug` keyword)
@@ -41,6 +41,7 @@ Use on Chromium/Chrome requires the downloading the [webextension-polyfill](http
 Pull requests welcome! Ideas for contributions:
 
 * Convert to [Manifest V3](https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/) (MV3)
+* Refactor into more modules
 * Support more than one top level context menu item (see [bug 1294429](https://bugzilla.mozilla.org/show_bug.cgi?id=1294429))
 * Show omnibox suggestions in private windows in Firefox (see [bug 1779400](https://bugzilla.mozilla.org/show_bug.cgi?id=1779400))
 * Support changing the omnibox keyword (see [bug 1375453](https://bugzilla.mozilla.org/show_bug.cgi?id=1375453))
