@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/tdulcet/Bug-Opener/workflows/CI/badge.svg?branch=main)](https://github.com/tdulcet/Bug-Opener/actions)
+
 # Bug Opener
 Open bug/issue numbers
 
@@ -50,5 +52,5 @@ Pull requests welcome! Ideas for contributions:
 	* [Check validity of input before saving values](https://github.com/TinyWebEx/AutomaticSettings/issues/14)
 * Improve the performance
 * Sync settings in Thunderbird (see [bug 446444](https://bugzilla.mozilla.org/show_bug.cgi?id=446444))
-* Support Firefox for Android (see [bug 1595822](https://bugzilla.mozilla.org/show_bug.cgi?id=1595822))
+* Support Firefox for Android (see [bug 1595822](https://bugzilla.mozilla.org/show_bug.cgi?id=1595822) and [bug 1427501](https://bugzilla.mozilla.org/show_bug.cgi?id=1427501))
 * Localize the add-on

@@ -33,8 +33,8 @@ const reBug = Object.freeze({
 	[TYPE.GL]: /([#!])(\d+)/gu,
 	// Bitbucket Issues and Pull Requests
 	[TYPE.BB]: re,
-	// Bugzilla Bugs
-	[TYPE.BMO]: /(?:Bug )?(\d{3,})/igu,
+	// Bugzilla Bugs: https://bugzilla.readthedocs.io/en/latest/using/tips.html
+	[TYPE.BMO]: /\b(?:Bug\s*)?(?:#\s*)?(\d{3,})\b/igu, // /\bBugs\s*#?\s*\d+(?:\s*,\s*#?\s*\d+)+\b/igu
 	// Jira Issues
 	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/igu
 });
@@ -272,6 +272,8 @@ async function handleMenuShown(info, tab) {
 
 	// do not show menu entry when no text is selected
 	if (!text) {
+		await menus.removeAll();
+		menus.refresh();
 		return;
 	}
 
@@ -365,7 +367,7 @@ async function handleMenuChoosen(info, tab) {
  * Add menu items.
  *
  * @param {string} transformationId
- * @param {Object[]} menuItems
+ * @param {{name: string, url, string|null}[]} menuItems
  * @param {string} exampleText
  * @param {string[]} bugnums
  * @returns {Promise<void>}
@@ -505,7 +507,7 @@ async function buildMenu(exampleText, tab) {
 	if (Object.keys(arepos).length) {
 		if (menuIsShown) {
 			menus.update(TYPE.BUG, {
-				enabled: Object.values(bugnums).some((v) => v)
+				enabled: Object.values(bugnums).some(Boolean)
 			});
 		} else {
 			await menus.create({
@@ -605,7 +607,7 @@ function setSettings(asettings) {
 	settings.newTab = false;
 	settings.newWindow = false;
 	settings.private = false;
-	switch (parseInt(asettings.disposition, 10)) {
+	switch (Number.parseInt(asettings.disposition, 10)) {
 		case 1:
 			break;
 		case 2:

@@ -61,7 +61,7 @@ export async function registerTrigger() {
 			};
 			clone.getElementById("delete").addEventListener("click", deleteRow);
 
-			row.appendChild(clone);
+			row.append(clone);
 		};
 		document.getElementById(`${repos}-add`).addEventListener("click", (event) => {
 			addRow();
