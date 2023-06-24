@@ -43,13 +43,14 @@ Use on Chromium/Chrome requires the downloading the [webextension-polyfill](http
 Pull requests welcome! Ideas for contributions:
 
 * Convert to [Manifest V3](https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/) (MV3)
+* Add support for more issue trackers
+	* Support [Monorail](https://chromium.googlesource.com/infra/infra/+/main/appengine/monorail/doc/userguide/power-users.md#autolinking)
 * Refactor into more modules
 * Support more than one top level context menu item (see [bug 1294429](https://bugzilla.mozilla.org/show_bug.cgi?id=1294429))
-* Show omnibox suggestions in private windows in Firefox (see [bug 1779400](https://bugzilla.mozilla.org/show_bug.cgi?id=1779400))
 * Support changing the omnibox keyword (see [bug 1375453](https://bugzilla.mozilla.org/show_bug.cgi?id=1375453))
-* Show more than six omnibox suggestions (see [bug 1375252](https://bugzilla.mozilla.org/show_bug.cgi?id=1375252))
 * [Improve the options page](https://github.com/TinyWebEx/AutomaticSettings/issues/15)
 	* [Check validity of input before saving values](https://github.com/TinyWebEx/AutomaticSettings/issues/14)
+	* [Allow dragging](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) the installations/repositories in each issue tracker to rearrange them
 * Improve the performance
 * Sync settings in Thunderbird (see [bug 446444](https://bugzilla.mozilla.org/show_bug.cgi?id=446444))
 * Support Firefox for Android (see [bug 1595822](https://bugzilla.mozilla.org/show_bug.cgi?id=1595822) and [bug 1427501](https://bugzilla.mozilla.org/show_bug.cgi?id=1427501))

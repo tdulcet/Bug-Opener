@@ -73,6 +73,8 @@ const settings = {
 	send: null
 };
 
+const notifications = new Map();
+
 let menuIsShown = false;
 
 let isAllowed = null;
@@ -96,6 +98,18 @@ function notification(title, message) {
 		});
 	}
 }
+
+browser.notifications.onClicked.addListener((notificationId) => {
+	const url = notifications.get(notificationId);
+
+	if (url) {
+		browser.tabs.create({ url });
+	}
+});
+
+browser.notifications.onClosed.addListener((notificationId) => {
+	notifications.delete(notificationId);
+});
 
 /**
  * Encode XML.
@@ -130,7 +144,7 @@ function getGHURLs(text, url, omnibox) {
 		}
 		if (settings.single || omnibox) {
 			if (issues.length > 1) {
-				return [`${url}issues?q=${encodeURIComponent(issues.join("+"))}`];
+				return [`${url}issues?${new URLSearchParams({ q: issues.join(" ") })}`];
 			}
 		}
 		return issues.map((issue) => `${url}issues/${issue}`);
@@ -192,7 +206,7 @@ function getBMOURLs(text, url, omnibox) {
 		}
 		if (settings.single || omnibox) {
 			if (bugnums.length > 1) {
-				return [`${url}buglist.cgi?bug_id=${encodeURIComponent(bugnums.join(","))}`];
+				return [`${url}buglist.cgi?${new URLSearchParams({ bug_id: bugnums.join(",") })}`];
 			}
 		}
 		return bugnums.map((bugnum) => `${url}show_bug.cgi?id=${bugnum}`);
@@ -209,17 +223,17 @@ function getBMOURLs(text, url, omnibox) {
  * @returns {string[]}
  */
 function getJiraURLs(text, url, omnibox) {
-	const bugnums = Array.from(text.matchAll(reBug[TYPE.JIRA]), (x) => x[0]);
-	if (bugnums.length) {
+	const issues = Array.from(text.matchAll(reBug[TYPE.JIRA]), (x) => x[0]);
+	if (issues.length) {
 		if (!url.endsWith("/")) { // terminating /
 			url += "/";
 		}
 		if (settings.single || omnibox) {
-			if (bugnums.length > 1) {
-				return [`${url}issues/?jql=${encodeURIComponent(`key in (${bugnums.join(", ")})`)}`];
+			if (issues.length > 1) {
+				return [`${url}issues/?${new URLSearchParams({ jql: `key in (${issues.join(", ")})` })}`];
 			}
 		}
-		return bugnums.map((bugnum) => `${url}browse/${bugnum}`);
+		return issues.map((issue) => `${url}browse/${issue}`);
 	}
 	return [];
 }
@@ -679,3 +693,36 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
 		buildMenu();
 	}
 });
+
+browser.runtime.onInstalled.addListener((details) => {
+	console.log(details);
+
+	const manifest = browser.runtime.getManifest();
+	switch (details.reason) {
+		case "install":
+			notification(`🎉 ${manifest.name} installed`, `Thank you for installing the “${TITLE}” add-on!\nVersion: ${manifest.version}\n\nOpen the options/preferences page to configure this extension and add your issue trackers.`);
+			break;
+		case "update":
+			if (settings.send) {
+				browser.notifications.create({
+					type: "basic",
+					iconUrl: browser.runtime.getURL("icons/icon_128.png"),
+					title: `✨ ${manifest.name} updated`,
+					message: `The “${TITLE}” add-on has been updated to version ${manifest.version}. Click to see the release notes.\n\n❤️ Huge thanks to the generous donors that have allowed me to continue to work on this extension!`
+				}).then(async (notificationId) => {
+					let url = "";
+					if (browser.runtime.getBrowserInfo) {
+						const browserInfo = await browser.runtime.getBrowserInfo();
+
+						url = browserInfo.name === "Thunderbird" ? `https://addons.thunderbird.net/thunderbird/addon/bug-opener/versions/${manifest.version}` : `https://addons.mozilla.org/firefox/addon/bug-opener/versions/${manifest.version}`;
+					}
+					if (url) {
+						notifications.set(notificationId, url);
+					}
+				});
+			}
+			break;
+	}
+});
+
+browser.runtime.setUninstallURL("https://forms.gle/qhBxEKP7eA2JjSky8");
