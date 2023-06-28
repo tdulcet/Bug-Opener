@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Bug Opener",
-  "version": "1.0",
+  "version": "1.1",
   "author": "Teal Dulcet",
 
   "description": "Open GitHub, GitLab, Bitbucket, Bugzilla and Jira bug/issue numbers.",
@@ -31,7 +31,7 @@
     "notifications"
   ],
 
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "bugs@tealdulcet.com",
       "strict_min_version": "78.0"
