@@ -410,7 +410,8 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
 			const url = menuItem.url && new URL(menuItem.url);
 			const menuText = `${menuItem.name}${url ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : ""}`;
 			if (menuIsShown) {
-				if (IS_CHROME || !url) {
+				// Thunderbird 115 removed support for dynamically setting the menu icon: https://bugzilla.mozilla.org/show_bug.cgi?id=1862387
+				if (IS_THUNDERBIRD || IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(menuItem.url)
@@ -439,7 +440,8 @@ async function createSubmenus(transformationId, menuItems, exampleText, bugnums)
 			const url = menuItem.url && new URL(menuItem.url);
 			const menuText = `in ${menuItem.name}${url ? "" : ` ${transformationId}`}${url ? amenuItems.length > 1 ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : text : ""}`;
 			if (menuIsShown) {
-				if (IS_CHROME || !url) {
+				// Thunderbird 115 removed support for dynamically setting the menu icon: https://bugzilla.mozilla.org/show_bug.cgi?id=1862387
+				if (IS_THUNDERBIRD || IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(bugnums) && Boolean(menuItem.url)
