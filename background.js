@@ -139,15 +139,13 @@ function encodeXML(text) {
 function getGHURLs(text, url, omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.GH]), (x) => x[1]);
 	if (issues.length) {
-		if (!url.endsWith("/")) { // terminating /
-			url += "/";
-		}
+		const aurl = new URL(url); // terminating /
 		if (settings.single || omnibox) {
 			if (issues.length > 1) {
-				return [`${url}issues?${new URLSearchParams({ q: issues.join(" ") })}`];
+				return [`${aurl}issues?${new URLSearchParams({ q: issues.join(" ") })}`];
 			}
 		}
-		return issues.map((issue) => `${url}issues/${issue}`);
+		return issues.map((issue) => `${aurl}issues/${issue}`);
 	}
 	return [];
 }
@@ -163,10 +161,8 @@ function getGHURLs(text, url, omnibox) {
 function getGLURLs(text, url/* , omnibox */) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.GL]));
 	if (issues.length) {
-		if (!url.endsWith("/")) { // terminating /
-			url += "/";
-		}
-		return issues.map((issue) => `${url}-/${issue[1] === "!" ? "merge_requests" : "issues"}/${issue[2]}`);
+		const aurl = new URL(url); // terminating /
+		return issues.map((issue) => `${aurl}-/${issue[1] === "!" ? "merge_requests" : "issues"}/${issue[2]}`);
 	}
 	return [];
 }
@@ -182,10 +178,8 @@ function getGLURLs(text, url/* , omnibox */) {
 function getBBURLs(text, url/* , omnibox */) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.BB]), (x) => x[1]);
 	if (issues.length) {
-		if (!url.endsWith("/")) { // terminating /
-			url += "/";
-		}
-		return issues.map((issue) => `${url}issues/${issue}`);
+		const aurl = new URL(url); // terminating /
+		return issues.map((issue) => `${aurl}issues/${issue}`);
 	}
 	return [];
 }
@@ -201,15 +195,13 @@ function getBBURLs(text, url/* , omnibox */) {
 function getBMOURLs(text, url, omnibox) {
 	const bugnums = Array.from(text.matchAll(reBug[TYPE.BMO]), (x) => x[1]);
 	if (bugnums.length) {
-		if (!url.endsWith("/")) { // terminating /
-			url += "/";
-		}
+		const aurl = new URL(url); // terminating /
 		if (settings.single || omnibox) {
 			if (bugnums.length > 1) {
-				return [`${url}buglist.cgi?${new URLSearchParams({ bug_id: bugnums.join(",") })}`];
+				return [`${aurl}buglist.cgi?${new URLSearchParams({ bug_id: bugnums.join(",") })}`];
 			}
 		}
-		return bugnums.map((bugnum) => `${url}show_bug.cgi?id=${bugnum}`);
+		return bugnums.map((bugnum) => `${aurl}show_bug.cgi?id=${bugnum}`);
 	}
 	return [];
 }
@@ -225,15 +217,13 @@ function getBMOURLs(text, url, omnibox) {
 function getJiraURLs(text, url, omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.JIRA]), (x) => x[0]);
 	if (issues.length) {
-		if (!url.endsWith("/")) { // terminating /
-			url += "/";
-		}
+		const aurl = new URL(url); // terminating /
 		if (settings.single || omnibox) {
 			if (issues.length > 1) {
-				return [`${url}issues/?${new URLSearchParams({ jql: `key in (${issues.join(", ")})` })}`];
+				return [`${aurl}issues/?${new URLSearchParams({ jql: `key in (${issues.join(", ")})` })}`];
 			}
 		}
-		return issues.map((issue) => `${url}browse/${issue}`);
+		return issues.map((issue) => `${aurl}browse/${issue}`);
 	}
 	return [];
 }
@@ -242,7 +232,7 @@ function getJiraURLs(text, url, omnibox) {
  * Get URLs.
  *
  * @const
- * @type {Object.<string, function(string, string, boolean): string[]>}
+ * @type {Object.<string, function(string, string, boolean=): string[]>}
  */
 const getURLs = Object.freeze({
 	// GitHub
@@ -382,13 +372,12 @@ async function handleMenuChoosen(info, tab) {
  * Add menu items.
  *
  * @param {string} transformationId
- * @param {{name: string, url, string|null}[]} menuItems
- * @param {string} exampleText
+ * @param {{name: string, url: string|null, icon?: string}[]} menuItems
  * @param {string[]} bugnums
  * @returns {Promise<void>}
  */
-async function createSubmenus(transformationId, menuItems, exampleText, bugnums) {
-	// console.log(transformationId, menuItems, exampleText, bugnums);
+async function createSubmenus(transformationId, menuItems, bugnums) {
+	// console.log(transformationId, menuItems, bugnums);
 	const text = settings.livePreview && bugnums ? ` (${formatter1.format(bugnums).replaceAll("&", "&&")})` : "";
 	const aid = `${TYPE.BUG}-${transformationId}`;
 	if (settings.nested && menuItems.length > 1) {
@@ -512,7 +501,7 @@ async function buildMenu(exampleText, tab) {
 			}
 		}
 	}
-	arepos = Object.fromEntries(Object.entries(arepos).filter(([k, v]) => v.length));
+	arepos = Object.fromEntries(Object.entries(arepos).filter(([, v]) => v.length));
 
 	const bugnums = {};
 	if (exampleText) {
@@ -545,7 +534,7 @@ async function buildMenu(exampleText, tab) {
 			});
 		}
 
-		await createSubmenus(key, repos, exampleText, bugnums[key]);
+		await createSubmenus(key, repos, bugnums[key]);
 	}
 
 	menuIsShown = true;

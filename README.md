@@ -45,6 +45,7 @@ Pull requests welcome! Ideas for contributions:
 * Convert to [Manifest V3](https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/) (MV3)
 * Add support for more issue trackers
 	* Support [Monorail](https://chromium.googlesource.com/infra/infra/+/main/appengine/monorail/doc/userguide/power-users.md#autolinking)
+* Add support for more [GitLab specific references](https://docs.gitlab.com/ee/user/markdown.html?tab=Rendered+Markdown#gitlab-specific-references)
 * Refactor into more modules
 * Support more than one top level context menu item (see [bug 1294429](https://bugzilla.mozilla.org/show_bug.cgi?id=1294429))
 * Support changing the omnibox keyword (see [bug 1375453](https://bugzilla.mozilla.org/show_bug.cgi?id=1375453))
