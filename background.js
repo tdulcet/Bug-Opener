@@ -41,7 +41,7 @@ const reBug = Object.freeze({
 
 // Thunderbird
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1641573
-const IS_THUNDERBIRD = typeof messenger !== "undefined";
+const IS_THUNDERBIRD = Boolean(globalThis.messenger);
 
 // Chrome
 const IS_CHROME = Object.getPrototypeOf(browser) !== Object.prototype;
@@ -125,7 +125,7 @@ function encodeXML(text) {
 		'"': "&quot;",
 		"'": "&apos;"
 	};
-	return text.replace(/[&<>"']/gu, (m) => map[m]);
+	return text.replaceAll(/[&<>"']/gu, (m) => map[m]);
 }
 
 /**
@@ -540,7 +540,7 @@ async function buildMenu(exampleText, tab) {
 	menuIsShown = true;
 }
 
-if (!IS_THUNDERBIRD) {
+if (browser.omnibox) {
 	browser.omnibox.onInputChanged.addListener((input, suggest) => {
 		console.log(input);
 		const result = [];
@@ -633,7 +633,7 @@ function setSettings(asettings) {
 	settings.delay = asettings.delay;
 	settings.send = asettings.send;
 
-	if (!IS_THUNDERBIRD) {
+	if (browser.omnibox) {
 		browser.omnibox.setDefaultSuggestion({
 			description: `Search for bugs via ${TITLE}. Type ${formatter2.format(menuStructure.filter((x) => settings[x].length))} bug/issue numbers.`
 		});

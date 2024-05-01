@@ -34,7 +34,7 @@ export async function registerTrigger() {
 				clone.getElementById("url").value = repo.url;
 			}
 
-			const up = (event) => {
+			const up = (/* event */) => {
 				const prev = row.previousSibling;
 				if (prev?.previousSibling) {
 					row.parentNode.insertBefore(row, prev);
@@ -44,7 +44,7 @@ export async function registerTrigger() {
 			};
 			clone.getElementById("up").addEventListener("click", up);
 
-			const down = (event) => {
+			const down = (/* event */) => {
 				const next = row.nextSibling;
 				if (next) {
 					row.parentNode.insertBefore(row, next.nextSibling);
@@ -54,7 +54,7 @@ export async function registerTrigger() {
 			};
 			clone.getElementById("down").addEventListener("click", down);
 
-			const deleteRow = (event) => {
+			const deleteRow = (/* event */) => {
 				row.remove();
 
 				table.dispatchEvent(aevent);
@@ -63,7 +63,7 @@ export async function registerTrigger() {
 
 			row.append(clone);
 		};
-		document.getElementById(`${repos}-add`).addEventListener("click", (event) => {
+		document.getElementById(`${repos}-add`).addEventListener("click", (/* event */) => {
 			addRow();
 		});
 
@@ -72,7 +72,7 @@ export async function registerTrigger() {
 				table.deleteRow(-1);
 			}
 		};
-		document.getElementById(`${repos}-remove`).addEventListener("click", (event) => {
+		document.getElementById(`${repos}-remove`).addEventListener("click", (/* event */) => {
 			// Does not work in Thunderbird: https://bugzilla.mozilla.org/show_bug.cgi?id=1780977
 			if (confirm("Are you sure you want to remove all repositories?")) {
 				removeRows();
@@ -121,7 +121,7 @@ export async function registerTrigger() {
 	});
 
 	// Thunderbird
-	if (typeof messenger !== "undefined") {
+	if (globalThis.messenger) {
 		document.getElementById("GH").disabled = true;
 		document.getElementById("GL").disabled = true;
 		document.getElementById("BB").disabled = true;
