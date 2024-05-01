@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/tdulcet/Bug-Opener/workflows/CI/badge.svg?branch=main)](https://github.com/tdulcet/Bug-Opener/actions)
+[![Actions Status](https://github.com/tdulcet/Bug-Opener/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tdulcet/Bug-Opener/actions/workflows/ci.yml)
 
 # Bug Opener
 Open bug/issue numbers
