@@ -158,7 +158,7 @@ function getGHURLs(text, url, omnibox) {
  * @param {boolean} [omnibox]
  * @returns {string[]}
  */
-function getGLURLs(text, url/* , omnibox */) {
+function getGLURLs(text, url, _omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.GL]));
 	if (issues.length) {
 		const aurl = new URL(url); // terminating /
@@ -175,7 +175,7 @@ function getGLURLs(text, url/* , omnibox */) {
  * @param {boolean} [omnibox]
  * @returns {string[]}
  */
-function getBBURLs(text, url/* , omnibox */) {
+function getBBURLs(text, url, _omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.BB]), (x) => x[1]);
 	if (issues.length) {
 		const aurl = new URL(url); // terminating /
@@ -352,7 +352,11 @@ async function handleMenuChoosen(info, tab) {
 
 			if (urls.length > 1) {
 				for (const url of urls) {
-					await browser.tabs.create({ url, active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
+					const options = { url, active: aactive, /* index: aindex, */ openerTabId: tab.id };
+					if (!IS_CHROME) {
+						options.discarded = !aactive && settings.lazy;
+					}
+					await browser.tabs.create(options);
 					// aindex += 1;
 					aactive = false;
 					if (settings.delay) {
@@ -360,7 +364,11 @@ async function handleMenuChoosen(info, tab) {
 					}
 				}
 			} else if (settings.newTab) {
-				browser.tabs.create({ url: urls[0], active: aactive, discarded: !aactive && settings.lazy, /* index: aindex, */ openerTabId: tab.id });
+				const options = { url: urls[0], active: aactive, /* index: aindex, */ openerTabId: tab.id };
+				if (!IS_CHROME) {
+					options.discarded = !aactive && settings.lazy;
+				}
+				browser.tabs.create(options);
 			} else {
 				browser.tabs.update(tab.id, { url: urls[0] });
 			}
@@ -399,8 +407,7 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 			const url = menuItem.url && new URL(menuItem.url);
 			const menuText = `${menuItem.name}${url ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : ""}`;
 			if (menuIsShown) {
-				// Thunderbird 115 removed support for dynamically setting the menu icon: https://bugzilla.mozilla.org/show_bug.cgi?id=1862387
-				if (IS_THUNDERBIRD || IS_CHROME || !url) {
+				if (IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(menuItem.url)
@@ -429,8 +436,7 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 			const url = menuItem.url && new URL(menuItem.url);
 			const menuText = `in ${menuItem.name}${url ? "" : ` ${transformationId}`}${url ? amenuItems.length > 1 ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : text : ""}`;
 			if (menuIsShown) {
-				// Thunderbird 115 removed support for dynamically setting the menu icon: https://bugzilla.mozilla.org/show_bug.cgi?id=1862387
-				if (IS_THUNDERBIRD || IS_CHROME || !url) {
+				if (IS_CHROME || !url) {
 					menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(bugnums) && Boolean(menuItem.url)
