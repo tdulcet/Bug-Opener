@@ -391,7 +391,7 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 	if (settings.nested && menuItems.length > 1) {
 		const menuText = `in ${transformationId}${text}`;
 		if (menuIsShown) {
-			menus.update(aid, {
+			await menus.update(aid, {
 				title: menuText,
 				visible: Boolean(bugnums)
 			});
@@ -408,12 +408,12 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 			const menuText = `${menuItem.name}${url ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : ""}`;
 			if (menuIsShown) {
 				if (IS_CHROME || !url) {
-					menus.update(`${aid}-${menuItem.name}`, {
+					await menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(menuItem.url)
 					});
 				} else {
-					menus.update(`${aid}-${menuItem.name}`, {
+					await menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						icons: {
 							16: menuItem.icon || `${url.origin}/favicon.ico`
@@ -437,12 +437,12 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 			const menuText = `in ${menuItem.name}${url ? "" : ` ${transformationId}`}${url ? amenuItems.length > 1 ? ` – ${url.pathname.length > 1 ? url.pathname : url.host}` : text : ""}`;
 			if (menuIsShown) {
 				if (IS_CHROME || !url) {
-					menus.update(`${aid}-${menuItem.name}`, {
+					await menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						visible: Boolean(bugnums) && Boolean(menuItem.url)
 					});
 				} else {
-					menus.update(`${aid}-${menuItem.name}`, {
+					await menus.update(`${aid}-${menuItem.name}`, {
 						title: menuText,
 						icons: {
 							16: menuItem.icon || `${url.origin}/favicon.ico`
@@ -472,13 +472,13 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 async function buildMenu(exampleText, tab) {
 	console.log(exampleText);
 	let arepos = {
-		[TYPE.GH]: settings.GH ? [{ name: "Current", url: null }, ...settings[TYPE.GH]] : settings[TYPE.GH],
-		[TYPE.GL]: settings.GL ? [{ name: "Current", url: null }, ...settings[TYPE.GL]] : settings[TYPE.GL],
-		[TYPE.BB]: settings.BB ? [{ name: "Current", url: null }, ...settings[TYPE.BB]] : settings[TYPE.BB],
+		[TYPE.GH]: settings.GH && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.GH]] : settings[TYPE.GH],
+		[TYPE.GL]: settings.GL && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.GL]] : settings[TYPE.GL],
+		[TYPE.BB]: settings.BB && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.BB]] : settings[TYPE.BB],
 		[TYPE.BMO]: settings[TYPE.BMO],
 		[TYPE.JIRA]: settings[TYPE.JIRA]
 	};
-	if (tab?.url && (settings.GH || settings.GL || settings.BB)) {
+	if (tab?.url && (settings.GH || settings.GL || settings.BB) && !IS_THUNDERBIRD) {
 		const aurl = new URL(tab.url);
 		const path = aurl.pathname.split("/");
 		if (path.length >= 3 && path[1] && path[2]) {
@@ -518,7 +518,7 @@ async function buildMenu(exampleText, tab) {
 
 	if (Object.keys(arepos).length) {
 		if (menuIsShown) {
-			menus.update(TYPE.BUG, {
+			await menus.update(TYPE.BUG, {
 				enabled: Object.values(bugnums).some(Boolean)
 			});
 		} else {
