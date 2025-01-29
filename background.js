@@ -34,9 +34,9 @@ const reBug = Object.freeze({
 	// Bitbucket Issues and Pull Requests
 	[TYPE.BB]: re,
 	// Bugzilla Bugs: https://bugzilla.readthedocs.io/en/latest/using/tips.html
-	[TYPE.BMO]: /\b(?:Bug\s*)?(?:#\s*)?(\d{3,})\b/igu, // /\bBugs\s*#?\s*\d+(?:\s*,\s*#?\s*\d+)+\b/igu
+	[TYPE.BMO]: /\b(?:Bug\s*)?(?:#\s*)?(\d{3,})\b/giu, // /\bBugs\s*#?\s*\d+(?:\s*,\s*#?\s*\d+)+\b/giu
 	// Jira Issues
-	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/igu
+	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/giu
 });
 
 // Thunderbird
@@ -139,7 +139,10 @@ function encodeXML(text) {
 function getGHURLs(text, url, omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.GH]), (x) => x[1]);
 	if (issues.length) {
-		const aurl = new URL(url); // terminating /
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
 		if (settings.single || omnibox) {
 			if (issues.length > 1) {
 				return [`${aurl}issues?${new URLSearchParams({ q: issues.join(" ") })}`];
@@ -161,7 +164,10 @@ function getGHURLs(text, url, omnibox) {
 function getGLURLs(text, url, _omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.GL]));
 	if (issues.length) {
-		const aurl = new URL(url); // terminating /
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
 		return issues.map((issue) => `${aurl}-/${issue[1] === "!" ? "merge_requests" : "issues"}/${issue[2]}`);
 	}
 	return [];
@@ -178,7 +184,10 @@ function getGLURLs(text, url, _omnibox) {
 function getBBURLs(text, url, _omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.BB]), (x) => x[1]);
 	if (issues.length) {
-		const aurl = new URL(url); // terminating /
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
 		return issues.map((issue) => `${aurl}issues/${issue}`);
 	}
 	return [];
@@ -195,7 +204,10 @@ function getBBURLs(text, url, _omnibox) {
 function getBMOURLs(text, url, omnibox) {
 	const bugnums = Array.from(text.matchAll(reBug[TYPE.BMO]), (x) => x[1]);
 	if (bugnums.length) {
-		const aurl = new URL(url); // terminating /
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
 		if (settings.single || omnibox) {
 			if (bugnums.length > 1) {
 				return [`${aurl}buglist.cgi?${new URLSearchParams({ bug_id: bugnums.join(",") })}`];
@@ -217,7 +229,10 @@ function getBMOURLs(text, url, omnibox) {
 function getJiraURLs(text, url, omnibox) {
 	const issues = Array.from(text.matchAll(reBug[TYPE.JIRA]), (x) => x[0]);
 	if (issues.length) {
-		const aurl = new URL(url); // terminating /
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
 		if (settings.single || omnibox) {
 			if (issues.length > 1) {
 				return [`${aurl}issues/?${new URLSearchParams({ jql: `key in (${issues.join(", ")})` })}`];
