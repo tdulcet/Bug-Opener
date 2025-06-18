@@ -187,6 +187,48 @@
 		</section>
 
 		<section>
+			<h1>Codeberg repositories</h1>
+
+			<ul>
+				<li>
+					<table class="setting save-on-change" id="CodebergRepos-table" data-optiongroup="settings" name="CodebergRepos">
+						<tr>
+							<th>Name</th>
+							<th>URL</th>
+							<th></th>
+						</tr>
+					</table>
+
+					<template id="CodebergRepos-row">
+						<td><input class="edit" type="text" id="name" data-optiongroup="settings" placeholder="Example" required /></td>
+						<td class="column"><input class="edit" type="url" id="url" data-optiongroup="settings" placeholder="https://codeberg.org/" required /></td>
+						<td>
+							<button type="button" id="up" title="Up">⬆️</button>
+							<button type="button" id="down" title="Down">⬇️</button>
+							<button type="button" id="delete" title="Delete Repository">❌</button>
+						</td>
+					</template>
+
+					<br>
+
+					<button type="button" id="CodebergRepos-add" title="Add Repository">➕ Repository</button>
+					<button type="button" id="CodebergRepos-remove" title="Remove All Repositories">🗑️ Remove All</button>
+
+					<br>
+
+					<ul>
+						<li>
+							<div class="line">
+								<input class="setting save-on-change" type="checkbox" id="CODEBERG" data-optiongroup="settings" name="CODEBERG">
+								<label for="CODEBERG">Add menu item for the current Codeberg repository</label>
+							</div>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</section>
+
+		<section>
 			<h1>Bugzilla installations</h1>
 
 			<ul>
@@ -214,6 +256,37 @@
 
 					<button type="button" id="bugzillas-add" title="Add Installation">➕ Installation</button>
 					<button type="button" id="bugzillas-remove" title="Remove All Installations">🗑️ Remove All</button>
+				</li>
+			</ul>
+		</section>
+
+		<section>
+			<h1>Phabricator installations</h1>
+
+			<ul>
+				<li>
+					<table class="setting save-on-change" id="phabricators-table" data-optiongroup="settings" name="phabricators">
+						<tr>
+							<th>Name</th>
+							<th>URL</th>
+							<th></th>
+						</tr>
+					</table>
+
+					<template id="phabricators-row">
+						<td><input class="edit" type="text" id="name" data-optiongroup="settings" placeholder="Example" required /></td>
+						<td class="column"><input class="edit" type="url" id="url" data-optiongroup="settings" placeholder="https://phabricator.services.mozilla.com/" required /></td>
+						<td>
+							<button type="button" id="up" title="Up">⬆️</button>
+							<button type="button" id="down" title="Down">⬇️</button>
+							<button type="button" id="delete" title="Delete Installation">❌</button>
+						</td>
+					</template>
+
+					<br>
+
+					<button type="button" id="phabricators-add" title="Add Installation">➕ Installation</button>
+					<button type="button" id="phabricators-remove" title="Remove All Installations">🗑️ Remove All</button>
 				</li>
 			</ul>
 		</section>
@@ -258,7 +331,7 @@
 						<input class="setting save-on-change" type="checkbox" id="single" data-optiongroup="settings" name="single">
 						<label for="single">Open multiple bugs in single page</label>
 					</div>
-					<span class="line indent helper-text">Note that this is not supported by GitLab or Bitbucket.</span>
+					<span class="line indent helper-text">Note that this is not supported by GitLab, Bitbucket, Codeberg or Phabricator.</span>
 				</li>
 
 				<li>

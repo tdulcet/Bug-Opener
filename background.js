@@ -9,15 +9,17 @@ const formatter2 = new Intl.ListFormat([], { style: "short", type: "disjunction"
 
 const TYPE = Object.freeze({
 	BUG: "bug",
-	BMO: "Bugzilla",
+	BUGZILLA: "Bugzilla",
+	PHAB: "Phabricator",
 	GH: "GitHub",
 	GL: "GitLab",
 	BB: "Bitbucket",
+	CODEBERG: "Codeberg",
 	JIRA: "Jira"
 });
-const menuStructure = Object.freeze([TYPE.BMO, TYPE.GH, TYPE.GL, TYPE.BB, TYPE.JIRA]);
+const menuStructure = Object.freeze([TYPE.BUGZILLA, TYPE.PHAB, TYPE.GH, TYPE.GL, TYPE.BB, TYPE.CODEBERG, TYPE.JIRA]);
 
-// GitHub and Bitbucket
+// GitHub, Bitbucket and Codeberg
 const re = /#(\d+)/gu;
 
 /**
@@ -33,8 +35,12 @@ const reBug = Object.freeze({
 	[TYPE.GL]: /([#!])(\d+)/gu,
 	// Bitbucket Issues and Pull Requests
 	[TYPE.BB]: re,
+	// Codeberg Issues and Pull Requests
+	[TYPE.CODEBERG]: re,
 	// Bugzilla Bugs: https://bugzilla.readthedocs.io/en/latest/using/tips.html
-	[TYPE.BMO]: /\b(?:Bug\s*)?(?:#\s*)?(\d{3,})\b/giu, // /\bBugs\s*#?\s*\d+(?:\s*,\s*#?\s*\d+)+\b/giu
+	[TYPE.BUGZILLA]: /\b(?:Bug\s*)?(?:#\s*)?(\d{3,})\b/giu, // /\bBugs\s*#?\s*\d+(?:\s*,\s*#?\s*\d+)+\b/giu
+	// Phabricator Revisions
+	[TYPE.PHAB]: /D(\d+)/gu,
 	// Jira Issues
 	[TYPE.JIRA]: /([A-Z]{2,})-(\d+)/giu
 });
@@ -59,7 +65,10 @@ const settings = {
 	GitLab: null,
 	BB: null,
 	Bitbucket: null,
+	CODEBERG: null,
+	Codeberg: null,
 	Bugzilla: null,
+	Phabricator: null,
 	Jira: null,
 	single: null,
 	nested: null,
@@ -194,6 +203,26 @@ function getBBURLs(text, url, _omnibox) {
 }
 
 /**
+ * Get Codeberg URLs.
+ *
+ * @param {string} text
+ * @param {string} url
+ * @param {boolean} [omnibox]
+ * @returns {string[]}
+ */
+function getCodebergURLs(text, url, _omnibox) {
+	const issues = Array.from(text.matchAll(reBug[TYPE.CODEBERG]), (x) => x[1]);
+	if (issues.length) {
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
+		return issues.map((issue) => `${aurl}issues/${issue}`);
+	}
+	return [];
+}
+
+/**
  * Get Bugzilla URLs.
  *
  * @param {string} text
@@ -201,8 +230,8 @@ function getBBURLs(text, url, _omnibox) {
  * @param {boolean} [omnibox]
  * @returns {string[]}
  */
-function getBMOURLs(text, url, omnibox) {
-	const bugnums = Array.from(text.matchAll(reBug[TYPE.BMO]), (x) => x[1]);
+function getBugzillaURLs(text, url, omnibox) {
+	const bugnums = Array.from(text.matchAll(reBug[TYPE.BUGZILLA]), (x) => x[1]);
 	if (bugnums.length) {
 		const aurl = new URL(url);
 		if (!aurl.pathname.endsWith("/")) { // terminating /
@@ -213,7 +242,28 @@ function getBMOURLs(text, url, omnibox) {
 				return [`${aurl}buglist.cgi?${new URLSearchParams({ bug_id: bugnums.join(",") })}`];
 			}
 		}
-		return bugnums.map((bugnum) => `${aurl}show_bug.cgi?id=${bugnum}`);
+		// `${aurl}show_bug.cgi?id=${bugnum}`
+		return bugnums.map((bugnum) => `${aurl}${bugnum}`);
+	}
+	return [];
+}
+
+/**
+ * Get Phabricator URLs.
+ *
+ * @param {string} text
+ * @param {string} url
+ * @param {boolean} [omnibox]
+ * @returns {string[]}
+ */
+function getPhabURLs(text, url, omnibox) {
+	const revisions = Array.from(text.matchAll(reBug[TYPE.PHAB]), (x) => x[0]);
+	if (revisions.length) {
+		const aurl = new URL(url);
+		if (!aurl.pathname.endsWith("/")) { // terminating /
+			aurl.pathname += "/";
+		}
+		return revisions.map((revision) => `${aurl}${revision}`);
 	}
 	return [];
 }
@@ -256,8 +306,12 @@ const getURLs = Object.freeze({
 	[TYPE.GL]: getGLURLs,
 	// Bitbucket
 	[TYPE.BB]: getBBURLs,
+	// Codeberg
+	[TYPE.CODEBERG]: getCodebergURLs,
 	// Bugzilla
-	[TYPE.BMO]: getBMOURLs,
+	[TYPE.BUGZILLA]: getBugzillaURLs,
+	// Phabricator
+	[TYPE.PHAB]: getPhabURLs,
 	// Jira
 	[TYPE.JIRA]: getJiraURLs
 });
@@ -490,10 +544,12 @@ async function buildMenu(exampleText, tab) {
 		[TYPE.GH]: settings.GH && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.GH]] : settings[TYPE.GH],
 		[TYPE.GL]: settings.GL && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.GL]] : settings[TYPE.GL],
 		[TYPE.BB]: settings.BB && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.BB]] : settings[TYPE.BB],
-		[TYPE.BMO]: settings[TYPE.BMO],
+		[TYPE.CODEBERG]: settings.CODEBERG && !IS_THUNDERBIRD ? [{ name: "Current", url: null }, ...settings[TYPE.CODEBERG]] : settings[TYPE.CODEBERG],
+		[TYPE.BUGZILLA]: settings[TYPE.BUGZILLA],
+		[TYPE.PHAB]: settings[TYPE.PHAB],
 		[TYPE.JIRA]: settings[TYPE.JIRA]
 	};
-	if (tab?.url && (settings.GH || settings.GL || settings.BB) && !IS_THUNDERBIRD) {
+	if (tab?.url && (settings.GH || settings.GL || settings.BB || settings.CODEBERG) && !IS_THUNDERBIRD) {
 		const aurl = new URL(tab.url);
 		const path = aurl.pathname.split("/");
 		if (path.length >= 3 && path[1] && path[2]) {
@@ -512,6 +568,11 @@ async function buildMenu(exampleText, tab) {
 				case "https://bitbucket.org":
 					if (settings.BB) {
 						type = TYPE.BB;
+					}
+					break;
+				case "https://codeberg.org":
+					if (settings.CODEBERG) {
+						type = TYPE.CODEBERG;
 					}
 					break;
 			}
@@ -627,7 +688,10 @@ function setSettings(asettings) {
 	settings.GitLab = asettings.GLRepos;
 	settings.BB = asettings.BB;
 	settings.Bitbucket = asettings.BBRepos;
+	settings.CODEBERG = asettings.CODEBERG;
+	settings.Codeberg = asettings.CodebergRepos;
 	settings.Bugzilla = asettings.bugzillas;
+	settings.Phabricator = asettings.phabricators;
 	settings.Jira = asettings.jiras;
 	settings.single = asettings.single;
 	settings.nested = asettings.nested;

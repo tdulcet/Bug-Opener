@@ -7,20 +7,22 @@ Copyright © 2021 Teal Dulcet
 
 ![](icons/logo.png)
 
-Firefox, Chromium and Thunderbird add-on/WebExtension to open GitHub, GitLab, Bitbucket, Bugzilla and Jira bug/issue numbers.
+Firefox, Chromium and Thunderbird add-on/WebExtension to open GitHub, GitLab, Bitbucket, Codeberg, Bugzilla, Phabricator and Jira bug/issue numbers.
 
 * Allows opening:
 	* GitHub Issues, Pull Requests and Discussions (requires `#` prefix)
 	* GitLab Issues and Merge Requests (requires `#` or `!` prefix respectively)
 	* Bitbucket Issues and Pull Requests (requires `#` prefix)
+	* Codeberg Issues and Pull Requests (requires `#` prefix)
 	* Bugzilla Bugs (optional case insensitive `bug` prefix and three or more digits)
+	* Phabricator Revisions/Differentials (requires `D` prefix)
 	* Jira Issues (requires case insensitive prefix)
 * Supports opening multiple bugs in single page
 * Type bug/issue numbers directly in the address bar/omnibox (Firefox and Chrome only, use the `bug` keyword)
 * Supports creating a nested context menu
 * Shows a live preview of the bug(s) that would open
 * Allows user to specify the installations/repositories for each issue tracker in the options
-* Supports automatically adding a menu item for the current GitHub, GitLab or Bitbucket repository
+* Supports automatically adding a menu item for the current GitHub, GitLab, Bitbucket or Codeberg repository
 * Supports opening bugs in the current tab, a new tab (default), a new window or a new private/incognito window (Firefox and Chrome only)
 * Supports lazy loading tabs (Firefox and Chrome only)
 * Supports the light/dark mode of your system automatically

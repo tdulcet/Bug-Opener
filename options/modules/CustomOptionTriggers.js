@@ -19,7 +19,7 @@ const BACKGROUND = "background";
 export async function registerTrigger() {
 	const aevent = new Event("change", { bubbles: true });
 
-	const arepos = ["GHRepos", "GLRepos", "BBRepos", "bugzillas", "jiras"];
+	const arepos = ["GHRepos", "GLRepos", "BBRepos", "CodebergRepos", "bugzillas", "phabricators", "jiras"];
 
 	for (const repos of arepos) {
 		const table = document.getElementById(`${repos}-table`);
@@ -125,6 +125,7 @@ export async function registerTrigger() {
 		document.getElementById("GH").disabled = true;
 		document.getElementById("GL").disabled = true;
 		document.getElementById("BB").disabled = true;
+		document.getElementById("CODEBERG").disabled = true;
 		document.getElementById("currentTab").disabled = true;
 		document.getElementById("newWindow").disabled = true;
 		document.getElementById("private").disabled = true;
