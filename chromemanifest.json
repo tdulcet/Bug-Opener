@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
   "name": "Bug Opener",
-  "version": "1.2",
+  "version": "1.3",
   "author": "Teal Dulcet",
 
-  "description": "Open GitHub, GitLab, Bitbucket, Bugzilla and Jira bug/issue numbers.",
+  "description": "Open GitHub, GitLab, Bitbucket, Codeberg, Bugzilla, Phabricator and Jira bug/issue numbers.",
   "homepage_url": "https://github.com/tdulcet/Bug-Opener",
 
   "omnibox": {
@@ -12,9 +12,7 @@
   },
 
   "options_ui": {
-    "page": "options/options.html",
-    "browser_style": true,
-    "chrome_style": true
+    "page": "options/options.html"
   },
   "background": {
     "page": "background.html"
