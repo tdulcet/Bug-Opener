@@ -74,11 +74,13 @@ export async function registerTrigger() {
 		};
 		document.getElementById(`${repos}-remove`).addEventListener("click", (/* event */) => {
 			// Does not work in Thunderbird: https://bugzilla.mozilla.org/show_bug.cgi?id=1780977
-			if (confirm("Are you sure you want to remove all repositories?")) {
-				removeRows();
-
-				table.dispatchEvent(aevent);
+			if (!confirm("Are you sure you want to remove all repositories?")) {
+				return;
 			}
+
+			removeRows();
+
+			table.dispatchEvent(aevent);
 		});
 
 		AutomaticSettings.Trigger.addCustomLoadOverride(repos, (param) => {

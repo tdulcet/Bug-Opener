@@ -25,7 +25,7 @@ const re = /#(\d+)/gu;
 /**
  * Bug/issue number regular expressions.
  *
- * @const
+ * @constant
  * @type {Object.<string, RegExp>}
  */
 const reBug = Object.freeze({
@@ -97,21 +97,25 @@ let isAllowed = null;
  * @returns {void}
  */
 function notification(title, message) {
-	if (settings.send) {
-		console.log(title, message);
-		browser.notifications.create({
-			type: "basic",
-			iconUrl: browser.runtime.getURL("icons/icon_128.png"),
-			title,
-			message
-		});
+	if (!settings.send) {
+		return;
 	}
+
+	console.log(title, message);
+	browser.notifications.create({
+		type: "basic",
+		iconUrl: browser.runtime.getURL("icons/icon_128.png"),
+		title,
+		message
+	});
 }
 
 browser.notifications.onClicked.addListener((notificationId) => {
 	const url = notifications.get(notificationId);
 
-	if (url) {
+	if (url == null) {
+		browser.runtime.openOptionsPage();
+	} else if (url) {
 		browser.tabs.create({ url });
 	}
 });
@@ -256,7 +260,7 @@ function getBugzillaURLs(text, url, omnibox) {
  * @param {boolean} [omnibox]
  * @returns {string[]}
  */
-function getPhabURLs(text, url, omnibox) {
+function getPhabURLs(text, url, _omnibox) {
 	const revisions = Array.from(text.matchAll(reBug[TYPE.PHAB]), (x) => x[0]);
 	if (revisions.length) {
 		const aurl = new URL(url);
@@ -296,7 +300,7 @@ function getJiraURLs(text, url, omnibox) {
 /**
  * Get URLs.
  *
- * @const
+ * @constant
  * @type {Object.<string, function(string, string, boolean=): string[]>}
  */
 const getURLs = Object.freeze({
@@ -332,26 +336,24 @@ function delay(delay) {
  * Potentially adjust context menu display if it is shown.
  *
  * This does not always change some things, but it e.g.
- * * hides the menu when no text is selected
+ * hides the menu when no text is selected
  *
- * @param {Object} info
- * @param {Object} tab
+ * @param {object} info
+ * @param {object} tab
  * @returns {Promise<void>}
  * @throws {Error}
  */
 async function handleMenuShown(info, tab) {
 	console.log(info);
-	let text = info.selectionText;
-
 	// do not show menu entry when no text is selected
-	if (!text) {
+	if (!info.selectionText) {
 		// await menus.removeAll();
 		// menuIsShown = false;
 		// menus.refresh();
 		return;
 	}
 
-	text &&= text.trim().normalize();
+	const text = info.selectionText.trim().normalize();
 
 	await buildMenu(text, tab);
 
@@ -363,20 +365,18 @@ async function handleMenuShown(info, tab) {
  *
  * This will trigger the actual action of transforming the selected text.
  *
- * @param {Object} info
- * @param {Object} tab
+ * @param {object} info
+ * @param {object} tab
  * @returns {Promise<void>}
  * @throws {Error}
  */
 async function handleMenuChoosen(info, tab) {
 	console.log(info);
-	let text = info.selectionText;
-
-	if (!text) {
+	if (!info.selectionText) {
 		return;
 	}
 
-	text = text.trim().normalize();
+	const text = info.selectionText.trim().normalize();
 
 	const urls = [];
 
@@ -389,8 +389,7 @@ async function handleMenuChoosen(info, tab) {
 				const aurl = new URL(tab.url);
 				url = aurl.origin + aurl.pathname.split("/").slice(0, 3).join("/");
 			} else {
-				const setting = settings[id].find((x) => x.name === name);
-				url = setting.url;
+				({ url } = settings[id].find((x) => x.name === name));
 			}
 			const aurls = getURLs[id](text, url);
 			if (aurls.length) {
@@ -534,8 +533,8 @@ async function createSubmenus(transformationId, menuItems, bugnums) {
 /**
  * Apply (new) menu item settings by (re)creating or updating/refreshing the context menu.
  *
- * @param {string?} [exampleText=null]
- * @param {Object?} [tab]
+ * @param {string?} [exampleText]
+ * @param {object?} [tab]
  * @returns {Promise<void>}
  */
 async function buildMenu(exampleText, tab) {
@@ -678,7 +677,7 @@ menus.onClicked.addListener(handleMenuChoosen);
 /**
  * Set settings.
  *
- * @param {Object} asettings
+ * @param {object} asettings
  * @returns {void}
  */
 function setSettings(asettings) {
@@ -777,7 +776,16 @@ browser.runtime.onInstalled.addListener((details) => {
 	const manifest = browser.runtime.getManifest();
 	switch (details.reason) {
 		case "install":
-			notification(`🎉 ${manifest.name} installed`, `Thank you for installing the “${TITLE}” add-on!\nVersion: ${manifest.version}\n\nOpen the options/preferences page to configure this extension and add your issue trackers.`);
+			if (settings.send) {
+				browser.notifications.create({
+					type: "basic",
+					iconUrl: browser.runtime.getURL("icons/icon_128.png"),
+					title: `🎉 ${manifest.name} installed`,
+					message: `Thank you for installing the “${TITLE}” add-on!\nVersion: ${manifest.version}\n\nClick to open the options/preferences page to configure this extension and add your issue trackers.`
+				}).then((notificationId) => {
+					notifications.set(notificationId, null);
+				});
+			}
 			break;
 		case "update":
 			if (settings.send) {
